@@ -1,10 +1,9 @@
 from envs.task_amenability import TaskAmenability
 
 import numpy as np
-
+from tensorflow import keras
 from stable_baselines import PPO2
 from stable_baselines.common.vec_env import DummyVecEnv
-
 from keras import layers
 import keras
 from keras.optimizers import Adam
