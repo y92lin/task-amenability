@@ -30,10 +30,12 @@ import os
 import csv
 import random
 
-import torch
-import yaml
+#import torch
+#import yaml
 
-from torch.utils.data import Dataset
+#from torch.utils.data import Dataset
+
+data_dir = '/Users/monicalin/Desktop/Harvard/Capstone/data'
 
 def generate_data_files(sample_percentage=1):
 
@@ -56,26 +58,28 @@ def generate_data_files(sample_percentage=1):
         for image in images:
             image_reference = (image_location, species, animal_class, image, score)
             image_reference_list.append(image_reference)
+    return image_reference_list
 
 # shuffle then split
 seed = 1234
+image_reference_list = generate_data_files()
 random.Random(seed).shuffle(image_reference_list)
 
 # might have to scale image
 training = image_reference_list[:int(len(image_reference_list) * 0.6 * sample_percentage)]  # sample_percentage is just so we dont have to process the entire data set (faster)
 x_train = []
 for image_reference in training():
-    print("Processing file number:" + str(index))
+    print("Processing file number:" + str(image_reference))
     file_path = os.path.join(image_reference.image_location, image_reference.image)
     im_features = cv2.imread(file_path)
     im_features = cv2.cvtColor(im_features, cv2.COLOR_BGR2GRAY)
     x_train.append(im_features)
 
-
+sample_percentage=1
 validation = image_reference_list[-int(len(image_reference_list) * 0.2 * sample_percentage):]
 x_val=[]
 for image_reference in validation():
-    print("Processing file number:" + str(index))
+    print("Processing file number:" + str(image_reference))
     file_path = os.path.join(image_reference.image_location, image_reference.image)
     im_features = cv2.imread(file_path)
     im_features = cv2.cvtColor(im_features, cv2.COLOR_BGR2GRAY)
@@ -84,7 +88,7 @@ for image_reference in validation():
 testing = image_reference_list[-int(len(image_reference_list) * 0.2 * sample_percentage):]
 x_holdout=[]
 for image_reference in testing():
-    print("Processing file number:" + str(index))
+    print("Processing file number:" + str(image_reference))
     file_path = os.path.join(image_reference.image_location, image_reference.image)
     im_features = cv2.imread(file_path)
     im_features = cv2.cvtColor(im_features, cv2.COLOR_BGR2GRAY)
