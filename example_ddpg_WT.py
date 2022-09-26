@@ -28,6 +28,7 @@ img_shape = (96, 96, 1)
 
 import os
 import csv
+import cv2
 import random
 
 #import torch
@@ -35,7 +36,7 @@ import random
 
 #from torch.utils.data import Dataset
 
-data_dir = '/Users/monicalin/Desktop/Harvard/Capstone/data'
+data_dir = '/Users/monicalin/Desktop/Harvard/Capstone/data/RAW'
 
 def generate_data_files(sample_percentage=1):
 
@@ -64,32 +65,40 @@ def generate_data_files(sample_percentage=1):
 seed = 1234
 image_reference_list = generate_data_files()
 random.Random(seed).shuffle(image_reference_list)
+sample_percentage=1
+
+train_index = int(len(image_reference_list) *0.6 *sample_percentage)
+test_index = -int(len(image_reference_list) * 0.2 * sample_percentage)
+val_index = test_index * 2
+
+training = image_reference_list[:train_index]
+validation = image_reference_list[val_index:test_index]
+testing = image_reference_list[test_index:]
 
 # might have to scale image
-training = image_reference_list[:int(len(image_reference_list) * 0.6 * sample_percentage)]  # sample_percentage is just so we dont have to process the entire data set (faster)
+#training = image_reference_list[:int(len(image_reference_list) * 0.6 * sample_percentage)]
 x_train = []
-for image_reference in training():
+for image_reference in training:
     print("Processing file number:" + str(image_reference))
-    file_path = os.path.join(image_reference.image_location, image_reference.image)
+    file_path = os.path.join(image_reference[0], image_reference[3])
     im_features = cv2.imread(file_path)
     im_features = cv2.cvtColor(im_features, cv2.COLOR_BGR2GRAY)
     x_train.append(im_features)
 
-sample_percentage=1
-validation = image_reference_list[-int(len(image_reference_list) * 0.2 * sample_percentage):]
+#validation = image_reference_list[-int(len(image_reference_list) * 0.2 * sample_percentage):]
 x_val=[]
-for image_reference in validation():
+for image_reference in validation:
     print("Processing file number:" + str(image_reference))
-    file_path = os.path.join(image_reference.image_location, image_reference.image)
+    file_path = os.path.join(image_reference[0], image_reference[3])
     im_features = cv2.imread(file_path)
     im_features = cv2.cvtColor(im_features, cv2.COLOR_BGR2GRAY)
     x_val.append(im_features)
 
-testing = image_reference_list[-int(len(image_reference_list) * 0.2 * sample_percentage):]
+#testing = image_reference_list[-int(len(image_reference_list) * 0.2 * sample_percentage):]
 x_holdout=[]
-for image_reference in testing():
+for image_reference in testing:
     print("Processing file number:" + str(image_reference))
-    file_path = os.path.join(image_reference.image_location, image_reference.image)
+    file_path = os.path.join(image_reference[0], image_reference[3])
     im_features = cv2.imread(file_path)
     im_features = cv2.cvtColor(im_features, cv2.COLOR_BGR2GRAY)
     x_holdout.append(im_features)
@@ -99,9 +108,9 @@ num_val_samples = len(validation)
 num_holdout_samples = len(testing)
 
 
-y_train = [image_reference.score for image_reference in training]
-y_val = [image_reference.score for image_reference in validation]
-y_holdout = [image_reference.score for image_reference in testing]
+y_train = [image_reference[4] for image_reference in training]
+y_val = [image_reference[4] for image_reference in validation]
+y_holdout = [image_reference[4] for image_reference in testing]
 
 
 task_predictor = build_task_predictor(img_shape)
